@@ -1,0 +1,10 @@
+{
+  "name": "manatal-careers-form",
+  "version": "1.0.0",
+  "description": "Engineering & IT careers landing page with Manatal MCP integration",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "private": true,
+  "dependencies": {}
+}

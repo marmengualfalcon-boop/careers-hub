@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candidates – Engineering & IT</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f1f5f9; color: #1e293b; min-height: 100vh; }
+  header { background: #0f172a; color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+  header h1 { font-size: 16px; font-weight: 600; }
+  #last-updated { font-size: 11px; color: #64748b; }
+  .main { padding: 20px 24px; max-width: 1300px; margin: 0 auto; }
+
+  .top-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+  .qbtn {
+    padding: 11px 24px; border-radius: 9px; border: none;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: transform .1s, box-shadow .1s;
+  }
+  .qbtn:active { transform: scale(.97); }
+  .qbtn-today { background: #2563eb; color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,.35); }
+  .qbtn-today:hover { background: #1d4ed8; }
+  .qbtn-week  { background: #7c3aed; color: #fff; box-shadow: 0 2px 8px rgba(124,58,237,.35); }
+  .qbtn-week:hover  { background: #6d28d9; }
+  .qbtn-all   { background: #fff; color: #374151; border: 2px solid #d1d5db; }
+  .qbtn-all:hover   { background: #f9fafb; }
+  .qbtn.active { outline: 3px solid rgba(0,0,0,.15); outline-offset: 2px; }
+
+  .search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 320px; margin-left: auto; }
+  .search-wrap input {
+    width: 100%; padding: 10px 12px 10px 34px;
+    border: 1px solid #d1d5db; border-radius: 8px;
+    font-size: 13px; background: #fff; outline: none;
+  }
+  .search-wrap input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px #dbeafe; }
+  .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none; }
+
+  .stats { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .stat { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 18px; }
+  .stat-num { font-size: 24px; font-weight: 700; color: #2563eb; line-height: 1; }
+  .stat-label { font-size: 11px; color: #6b7280; margin-top: 3px; }
+
+  .error-box { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 12px 16px; color: #dc2626; font-size: 13px; margin-bottom: 14px; display: none; }
+
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: #f9fafb; padding: 10px 14px; text-align: left; font-weight: 600; color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid #e5e7eb; white-space: nowrap; cursor: pointer; user-select: none; }
+  thead th:hover { background: #f3f4f6; color: #374151; }
+  thead th.sorted { color: #2563eb; }
+  .si { margin-left: 3px; }
+  tbody tr { border-bottom: 1px solid #f3f4f6; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #f9fafb; }
+  td { padding: 10px 14px; color: #374151; vertical-align: middle; }
+  td.name { font-weight: 600; color: #111827; white-space: nowrap; }
+  td.dt { white-space: nowrap; color: #6b7280; font-size: 12px; }
+  .go { color: #2563eb; text-decoration: none; font-size: 12px; font-weight: 600; }
+  .go:hover { text-decoration: underline; }
+  .nil { color: #d1d5db; }
+  .center { text-align: center; padding: 52px 0; color: #9ca3af; font-size: 14px; }
+  .spinner { display: inline-block; width: 20px; height: 20px; border: 2.5px solid #e5e7eb; border-top-color: #2563eb; border-radius: 50%; animation: sp .7s linear infinite; vertical-align: middle; margin-right: 8px; }
+  @keyframes sp { to { transform: rotate(360deg); } }
+  .pag { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-top: 1px solid #f3f4f6; font-size: 12px; color: #6b7280; }
+  .pbtns { display: flex; gap: 4px; }
+  .pb { padding: 3px 10px; border: 1px solid #e5e7eb; border-radius: 5px; background: #fff; cursor: pointer; font-size: 12px; color: #374151; }
+  .pb:hover { background: #f3f4f6; }
+  .pb.on { background: #2563eb; color: #fff; border-color: #2563eb; }
+</style>
+</head>
+<body>
+<header>
+  <h1>📋 Candidates — Engineering &amp; IT</h1>
+  <span id="last-updated"></span>
+</header>
+<div class="main">
+  <div class="top-bar">
+    <button class="qbtn qbtn-today" onclick="fetchAndShow('today')">📅 Hoy</button>
+    <button class="qbtn qbtn-week"  onclick="fetchAndShow('week')">📆 Esta semana</button>
+    <button class="qbtn qbtn-all"   onclick="fetchAndShow('all')">Todos</button>
+    <div class="search-wrap">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="q" placeholder="Buscar nombre, email, empresa…" oninput="renderTable()">
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="s-shown">–</div><div class="stat-label">Mostrando</div></div>
+    <div class="stat"><div class="stat-num" id="s-period">–</div><div class="stat-label" id="s-period-lbl">Período</div></div>
+    <div class="stat"><div class="stat-num" id="s-total">–</div><div class="stat-label">Total cargado</div></div>
+  </div>
+
+  <div id="err" class="error-box"></div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th onclick="sortBy('full_name')">Nombre <span class="si" id="si-full_name"></span></th>
+          <th onclick="sortBy('email')">Email <span class="si" id="si-email"></span></th>
+          <th onclick="sortBy('phone_number')">Teléfono <span class="si" id="si-phone_number"></span></th>
+          <th onclick="sortBy('candidate_location')">Ubicación <span class="si" id="si-candidate_location"></span></th>
+          <th onclick="sortBy('current_position')">Cargo actual <span class="si" id="si-current_position"></span></th>
+          <th onclick="sortBy('created_at')" class="sorted">Fecha <span class="si" id="si-created_at">↓</span></th>
+          <th>Perfil</th>
+        </tr></thead>
+        <tbody id="tbody"><tr><td colspan="7" class="center">Presioná un botón para cargar candidatos</td></tr></tbody>
+      </table>
+    </div>
+    <div class="pag" id="pag" style="display:none">
+      <span id="pag-info"></span>
+      <div class="pbtns" id="pag-btns"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '/api/get-candidates';
+const PER = 25;
+let rows = [], sc = 'created_at', sd = 'desc', pg = 1, activeBtn = null;
+
+async function fetchAndShow(period) {
+  // Highlight active button
+  document.querySelectorAll('.qbtn').forEach(b => b.classList.remove('active'));
+  activeBtn = period;
+  const btn = document.querySelector('.qbtn-' + period);
+  if (btn) btn.classList.add('active');
+
+  // Show loading
+  document.getElementById('tbody').innerHTML =
+    '<tr><td colspan="7" class="center"><span class="spinner"></span>Cargando…</td></tr>';
+  document.getElementById('pag').style.display = 'none';
+  document.getElementById('err').style.display = 'none';
+
+  // Build query params
+  const now = new Date();
+  const params = new URLSearchParams();
+  if (period === 'today') {
+    const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
+    params.set('from', `${y}-${m}-${d}T00:00:00Z`);
+  } else if (period === 'week') {
+    const week = new Date(now - 7*86400000);
+    params.set('from', week.toISOString());
+  }
+
+  try {
+    const res = await fetch(API + (params.toString() ? '?' + params : ''));
+    if (!res.ok) throw new Error('HTTP ' + res.status + ': ' + await res.text());
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    rows = (data.results ?? []).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+    // Stats
+    document.getElementById('s-total').textContent = rows.length;
+    document.getElementById('last-updated').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-AR');
+
+    const label = period === 'today' ? 'Hoy' : period === 'week' ? 'Esta semana' : 'Total';
+    document.getElementById('s-period-lbl').textContent = label;
+    document.getElementById('s-period').textContent = rows.length;
+
+    pg = 1;
+    renderTable();
+  } catch(e) {
+    const el = document.getElementById('err');
+    el.textContent = 'Error: ' + e.message;
+    el.style.display = 'block';
+    document.getElementById('tbody').innerHTML =
+      '<tr><td colspan="7" class="center">No se pudo cargar.</td></tr>';
+  }
+}
+
+function renderTable() {
+  const q = document.getElementById('q').value.toLowerCase().trim();
+  const cols = ['full_name','email','phone_number','candidate_location','current_position','created_at'];
+
+  // Filter by search
+  let visible = rows.filter(c => {
+    if (!q) return true;
+    return [c.full_name,c.email,c.phone_number,c.current_company,c.current_position,
+            c.candidate_location,c.address,c.latest_degree].filter(Boolean).join(' ').toLowerCase().includes(q);
+  });
+
+  document.getElementById('s-shown').textContent = visible.length;
+
+  // Sort
+  visible = visible.sort((a,b) => {
+    let av=a[sc]??'', bv=b[sc]??'';
+    if(sc==='created_at'){av=new Date(av);bv=new Date(bv);}
+    return av<bv?(sd==='asc'?-1:1):av>bv?(sd==='asc'?1:-1):0;
+  });
+
+  // Paginate
+  const total=visible.length, pages=Math.max(1,Math.ceil(total/PER));
+  if(pg>pages)pg=pages;
+  const slice=visible.slice((pg-1)*PER, pg*PER);
+
+  // Rows
+  const tbody=document.getElementById('tbody');
+  if(!slice.length){
+    tbody.innerHTML='<tr><td colspan="7" class="center">Sin postulaciones para este período.</td></tr>';
+  } else {
+    tbody.innerHTML=slice.map(c=>`<tr>
+      <td class="name">${x(c.full_name)}</td>
+      <td>${x(c.email)}</td>
+      <td>${x(c.phone_number)}</td>
+      <td>${x(c.candidate_location||c.address)}</td>
+      <td>${x(c.current_position)}</td>
+      <td class="dt">${fmt(c.created_at)}</td>
+      <td><a class="go" href="https://app.manatal.com/candidates/${c.id}" target="_blank">Ver →</a></td>
+    </tr>`).join('');
+  }
+
+  // Sort icons
+  cols.forEach(col=>{
+    const th=document.getElementById('si-'+col)?.closest('th');
+    if(th)th.classList.toggle('sorted',col===sc);
+    const ic=document.getElementById('si-'+col);
+    if(ic)ic.textContent=col===sc?(sd==='asc'?'↑':'↓'):'';
+  });
+
+  // Pagination
+  const pag=document.getElementById('pag');
+  if(pages>1){
+    pag.style.display='flex';
+    document.getElementById('pag-info').textContent=`${(pg-1)*PER+1}–${Math.min(pg*PER,total)} de ${total}`;
+    const btns=document.getElementById('pag-btns'); btns.innerHTML='';
+    for(let i=1;i<=pages;i++){
+      const b=document.createElement('button');
+      b.className='pb'+(i===pg?' on':''); b.textContent=i;
+      b.onclick=()=>{pg=i;renderTable();};
+      btns.appendChild(b);
+    }
+  } else { pag.style.display='none'; }
+}
+
+function sortBy(col){
+  if(sc===col)sd=sd==='asc'?'desc':'asc'; else{sc=col;sd=col==='created_at'?'desc':'asc';}
+  pg=1; renderTable();
+}
+
+function fmt(d){if(!d)return'–';return new Date(d).toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function x(s){if(!s)return'<span class="nil">–</span>';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+</script>
+</body>
+</html>

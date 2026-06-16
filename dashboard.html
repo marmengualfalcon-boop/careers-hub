@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pipeline — Engineering & IT</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f1f5f9; color: #1e293b; min-height: 100vh; }
+
+  header { background: #0f172a; color: #fff; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  header h1 { font-size: 15px; font-weight: 600; white-space: nowrap; }
+  #last-updated { font-size: 11px; color: #64748b; }
+
+  /* ── Toggle tabs ── */
+  .tabs { display: flex; gap: 0; background: #1e293b; border-radius: 8px; overflow: hidden; }
+  .tab-btn {
+    padding: 8px 20px; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 600; transition: background .15s, color .15s;
+    background: transparent; color: #94a3b8;
+  }
+  .tab-btn.active { background: #3b82f6; color: #fff; }
+  .tab-btn:hover:not(.active) { background: #334155; color: #e2e8f0; }
+
+  .main { padding: 20px 24px; max-width: 1400px; margin: 0 auto; }
+
+  .top-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .qbtn {
+    padding: 9px 20px; border-radius: 8px; border: none;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    transition: transform .1s, box-shadow .1s;
+  }
+  .qbtn:active { transform: scale(.97); }
+  .qbtn-today { background: #2563eb; color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,.3); }
+  .qbtn-week  { background: #7c3aed; color: #fff; box-shadow: 0 2px 8px rgba(124,58,237,.3); }
+  .qbtn-all   { background: #fff; color: #374151; border: 2px solid #d1d5db; }
+  .qbtn.active { outline: 3px solid rgba(0,0,0,.12); outline-offset: 2px; }
+
+  .search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 300px; margin-left: auto; }
+  .search-wrap input { width: 100%; padding: 9px 12px 9px 32px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; background: #fff; outline: none; }
+  .search-wrap input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px #dbeafe; }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none; }
+
+  .stats { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .stat { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 16px; }
+  .stat-num { font-size: 22px; font-weight: 700; color: #2563eb; line-height: 1; }
+  .stat-label { font-size: 11px; color: #6b7280; margin-top: 3px; }
+
+  .err-box { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 12px 16px; color: #dc2626; font-size: 13px; margin-bottom: 12px; display: none; }
+
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: #f9fafb; padding: 10px 14px; text-align: left; font-weight: 600; color: #6b7280; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid #e5e7eb; white-space: nowrap; cursor: pointer; user-select: none; }
+  thead th:hover { background: #f3f4f6; color: #374151; }
+  thead th.sorted { color: #2563eb; }
+  tbody tr { border-bottom: 1px solid #f3f4f6; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #f9fafb; }
+  td { padding: 10px 14px; color: #374151; vertical-align: top; max-width: 280px; }
+  td.name { font-weight: 600; color: #111827; white-space: nowrap; max-width: none; }
+  td.dt { white-space: nowrap; color: #6b7280; font-size: 12px; }
+  td.wrap { white-space: pre-wrap; word-break: break-word; font-size: 12px; color: #4b5563; }
+  .go { color: #2563eb; text-decoration: none; font-size: 12px; font-weight: 600; }
+  .go:hover { text-decoration: underline; }
+  .nil { color: #d1d5db; }
+  .center { text-align: center; padding: 52px 0; color: #9ca3af; font-size: 14px; }
+  .spinner { display: inline-block; width: 18px; height: 18px; border: 2.5px solid #e5e7eb; border-top-color: #2563eb; border-radius: 50%; animation: sp .7s linear infinite; vertical-align: middle; margin-right: 8px; }
+  @keyframes sp { to { transform: rotate(360deg); } }
+  .pag { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-top: 1px solid #f3f4f6; font-size: 12px; color: #6b7280; }
+  .pbtns { display: flex; gap: 4px; }
+  .pb { padding: 3px 10px; border: 1px solid #e5e7eb; border-radius: 5px; background: #fff; cursor: pointer; font-size: 12px; color: #374151; }
+  .pb:hover { background: #f3f4f6; }
+  .pb.on { background: #2563eb; color: #fff; border-color: #2563eb; }
+
+  /* ── Detail modal ── */
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+  .modal-bg.show { display: flex; }
+  .modal { background: #fff; border-radius: 12px; max-width: 620px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 28px; position: relative; }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; cursor: pointer; color: #6b7280; line-height: 1; }
+  .modal-close:hover { color: #111; }
+  .modal h2 { font-size: 17px; font-weight: 700; margin-bottom: 20px; color: #0f172a; }
+  .field-row { display: grid; grid-template-columns: 140px 1fr; gap: 6px 12px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid #f3f4f6; }
+  .field-row:last-child { border-bottom: none; }
+  .field-key { font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .4px; }
+  .field-val { font-size: 13px; color: #1e293b; word-break: break-word; white-space: pre-wrap; }
+  .field-val a { color: #2563eb; text-decoration: none; }
+  .field-val a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📋 Pipeline — Engineering &amp; IT</h1>
+  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-cand" onclick="switchTab('candidates')">👤 Candidatos</button>
+      <button class="tab-btn" id="tab-cli"  onclick="switchTab('clients')">🏢 Clientes</button>
+    </div>
+    <span id="last-updated"></span>
+  </div>
+</header>
+
+<div class="main">
+  <div class="top-bar">
+    <button class="qbtn qbtn-today" onclick="quickFilter('today')">📅 Hoy</button>
+    <button class="qbtn qbtn-week"  onclick="quickFilter('week')">📆 Esta semana</button>
+    <button class="qbtn qbtn-all"   onclick="quickFilter('all')">Todos</button>
+    <div class="search-wrap">
+      <svg class="search-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="q" placeholder="Buscar…" oninput="renderTable()">
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="s-shown">–</div><div class="stat-label">Mostrando</div></div>
+    <div class="stat"><div class="stat-num" id="s-period">–</div><div class="stat-label" id="s-period-lbl">Período</div></div>
+    <div class="stat"><div class="stat-num" id="s-total">–</div><div class="stat-label">Total</div></div>
+  </div>
+
+  <div id="err" class="err-box"></div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table id="tbl">
+        <thead id="thead"></thead>
+        <tbody id="tbody"><tr><td colspan="10" class="center">Seleccioná un período para cargar</td></tr></tbody>
+      </table>
+    </div>
+    <div class="pag" id="pag" style="display:none">
+      <span id="pag-info"></span>
+      <div class="pbtns" id="pag-btns"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail modal -->
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2 id="modal-title">Detalle</h2>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────────────────────
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgfWqJVIjbmd1HSbnwocgVMtYagpHlAPugwzSWxwX4uaLvHVXe7WQrlEYtIX-1lTt6_Q/exec";
+const PER = 30;
+
+let currentTab    = 'candidates'; // 'candidates' | 'clients'
+let allRows       = [];
+let filteredRows  = [];
+let sortCol       = '';
+let sortDir       = 'desc';
+let page          = 1;
+let activeFilter  = null;
+
+// ── Column definitions ────────────────────────────────────────────────────────
+const COLS_CANDIDATES = [
+  { key: 'Timestamp',   label: 'Fecha',      type: 'date' },
+  { key: 'Full Name',   label: 'Nombre',     type: 'name' },
+  { key: 'Email',       label: 'Email',      type: 'text' },
+  { key: 'Phone',       label: 'Teléfono',   type: 'text' },
+  { key: 'Location',    label: 'Ubicación',  type: 'text' },
+  { key: 'Current Title',   label: 'Rol Actual',  type: 'text' },
+  { key: 'Current Company', label: 'Empresa',     type: 'text' },
+  { key: 'LinkedIn',        label: 'LinkedIn',    type: 'link' },
+  { key: 'Skills',          label: 'Skills',      type: 'wrap' },
+  { key: 'Education',       label: 'Educación',   type: 'text' },
+  { key: 'CV',              label: 'CV',          type: 'link' },
+];
+
+const COLS_CLIENTS = [
+  { key: 'Timestamp',        label: 'Fecha',       type: 'date' },
+  { key: 'Full Name',        label: 'Contacto',    type: 'name' },
+  { key: 'Company',          label: 'Empresa',     type: 'text' },
+  { key: 'Email',            label: 'Email',       type: 'text' },
+  { key: 'WhatsApp',         label: 'WhatsApp',    type: 'text' },
+  { key: 'Role Description', label: 'Rol buscado', type: 'wrap' },
+  { key: 'Links',            label: 'Links',       type: 'links' },
+  { key: 'File URL',         label: 'Archivo',     type: 'link' },
+  { key: 'Edit Link',        label: 'Form',        type: 'link' },
+];
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  allRows = []; filteredRows = []; page = 1; activeFilter = null;
+  document.getElementById('tab-cand').classList.toggle('active', tab === 'candidates');
+  document.getElementById('tab-cli').classList.toggle('active',  tab === 'clients');
+  document.querySelectorAll('.qbtn').forEach(b => b.classList.remove('active'));
+  document.getElementById('q').value = '';
+  document.getElementById('err').style.display = 'none';
+  renderEmpty('Seleccioná un período para cargar');
+  updateStats(0, 0, 0, '–');
+  renderHeaders();
+}
+
+// ── Load data ─────────────────────────────────────────────────────────────────
+async function quickFilter(period) {
+  document.querySelectorAll('.qbtn').forEach(b => b.classList.remove('active'));
+  const cls = period === 'today' ? 'qbtn-today' : period === 'week' ? 'qbtn-week' : 'qbtn-all';
+  document.querySelector('.' + cls)?.classList.add('active');
+  activeFilter = period;
+
+  renderLoading();
+  document.getElementById('err').style.display = 'none';
+
+  const action = currentTab === 'candidates' ? 'candidates' : 'clients';
+
+  try {
+    const res  = await fetch(APPS_SCRIPT_URL + '?action=' + action);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    allRows = (data.rows || []).sort((a, b) =>
+      new Date(b['Timestamp'] || 0) - new Date(a['Timestamp'] || 0)
+    );
+
+    document.getElementById('last-updated').textContent =
+      'Actualizado ' + new Date().toLocaleTimeString('es-AR');
+    document.getElementById('s-total').textContent = allRows.length;
+
+    page = 1;
+    renderTable(period);
+  } catch (e) {
+    const el = document.getElementById('err');
+    el.textContent = 'Error: ' + e.message;
+    el.style.display = 'block';
+    renderEmpty('No se pudo cargar.');
+  }
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function renderHeaders() {
+  const cols = currentTab === 'candidates' ? COLS_CANDIDATES : COLS_CLIENTS;
+  const thead = document.getElementById('thead');
+  thead.innerHTML = '<tr>' + cols.map(c =>
+    `<th onclick="sortBy('${c.key}')" id="th-${c.key.replace(/\s/g,'_')}">${c.label} <span id="si-${c.key.replace(/\s/g,'_')}"></span></th>`
+  ).join('') + '<th>Ver</th></tr>';
+}
+
+function renderTable(periodOverride) {
+  const period = periodOverride || activeFilter || 'all';
+  const cols   = currentTab === 'candidates' ? COLS_CANDIDATES : COLS_CLIENTS;
+  const q      = document.getElementById('q').value.toLowerCase().trim();
+
+  // Period filter
+  const now = new Date();
+  let visible = allRows.filter(row => {
+    const ts = new Date(row['Timestamp'] || 0);
+    if (period === 'today') {
+      return ts.toDateString() === now.toDateString();
+    } else if (period === 'week') {
+      return (now - ts) < 7 * 86400000;
+    }
+    return true;
+  });
+
+  // Search filter
+  if (q) {
+    visible = visible.filter(row =>
+      Object.values(row).join(' ').toLowerCase().includes(q)
+    );
+  }
+
+  // Sort
+  if (sortCol) {
+    visible = visible.sort((a, b) => {
+      let av = a[sortCol] ?? '', bv = b[sortCol] ?? '';
+      if (sortCol === 'Timestamp') { av = new Date(av); bv = new Date(bv); }
+      return av < bv ? (sortDir === 'asc' ? -1 : 1) : av > bv ? (sortDir === 'asc' ? 1 : -1) : 0;
+    });
+  }
+
+  filteredRows = visible;
+  updateStats(visible.length, visible.length, allRows.length, period);
+
+  // Paginate
+  const total = visible.length;
+  const pages = Math.max(1, Math.ceil(total / PER));
+  if (page > pages) page = pages;
+  const slice = visible.slice((page - 1) * PER, page * PER);
+
+  const tbody = document.getElementById('tbody');
+  if (!slice.length) {
+    tbody.innerHTML = `<tr><td colspan="${cols.length + 1}" class="center">Sin resultados para este período.</td></tr>`;
+  } else {
+    tbody.innerHTML = slice.map((row, ri) => {
+      const cells = cols.map(c => {
+        const val = row[c.key] ?? '';
+        if (!val) return `<td><span class="nil">–</span></td>`;
+        if (c.type === 'date') return `<td class="dt">${fmtDate(val)}</td>`;
+        if (c.type === 'name') return `<td class="name">${esc(val)}</td>`;
+        if (c.type === 'link') return `<td>${val ? `<a class="go" href="${esc(val)}" target="_blank">Ver →</a>` : '<span class="nil">–</span>'}</td>`;
+        if (c.type === 'wrap') return `<td class="wrap" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(val)}</td>`;
+        if (c.type === 'links') {
+          const urls = String(val).split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+          const hrefs = urls.map(u => {
+            const href = /^https?:\/\//i.test(u) ? u : 'https://' + u;
+            return `<a class="go" href="${esc(href)}" target="_blank" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px">${esc(u)}</a>`;
+          }).join('');
+          return `<td style="max-width:200px">${hrefs || '<span class="nil">–</span>'}</td>`;
+        }
+        return `<td>${esc(val)}</td>`;
+      }).join('');
+      const idx = (page - 1) * PER + ri;
+      const verCell = currentTab === 'clients'
+        ? `<td><a class="go" href="https://docs.google.com/spreadsheets/d/1WrKof6GIxxrUDdqggF9Wfk30UVubf2IU_HN92BQn1ZI/edit" target="_blank">Ver →</a></td>`
+        : `<td><button class="go" style="border:none;background:none;cursor:pointer;padding:0" onclick="openModal(${idx})">⋯</button></td>`;
+      return `<tr>${cells}${verCell}</tr>`;
+    }).join('');
+  }
+
+  // Sort icons
+  cols.forEach(c => {
+    const key = c.key.replace(/\s/g, '_');
+    const si  = document.getElementById('si-' + key);
+    const th  = document.getElementById('th-' + key);
+    if (si) si.textContent = c.key === sortCol ? (sortDir === 'asc' ? '↑' : '↓') : '';
+    if (th) th.classList.toggle('sorted', c.key === sortCol);
+  });
+
+  // Pagination
+  const pag = document.getElementById('pag');
+  if (pages > 1) {
+    pag.style.display = 'flex';
+    document.getElementById('pag-info').textContent = `${(page-1)*PER+1}–${Math.min(page*PER,total)} de ${total}`;
+    const btns = document.getElementById('pag-btns'); btns.innerHTML = '';
+    for (let i = 1; i <= pages; i++) {
+      const b = document.createElement('button');
+      b.className = 'pb' + (i === page ? ' on' : '');
+      b.textContent = i;
+      b.onclick = () => { page = i; renderTable(); };
+      btns.appendChild(b);
+    }
+  } else { pag.style.display = 'none'; }
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  else { sortCol = col; sortDir = col === 'Timestamp' ? 'desc' : 'asc'; }
+  page = 1; renderTable();
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+function openModal(idx) {
+  const row  = filteredRows[idx];
+  if (!row) return;
+  const cols = currentTab === 'candidates' ? COLS_CANDIDATES : COLS_CLIENTS;
+
+  document.getElementById('modal-title').textContent =
+    row['Full Name'] || row['Company'] || 'Detalle';
+
+  // All columns in the modal (including ones not in main table)
+  const allKeys = [...new Set([...cols.map(c => c.key), ...Object.keys(row)])];
+  const colMap  = Object.fromEntries(cols.map(c => [c.key, c]));
+
+  document.getElementById('modal-body').innerHTML = allKeys
+    .filter(k => k !== 'Source' && (row[k] !== '' && row[k] !== null && row[k] !== undefined))
+    .map(k => {
+      const col = colMap[k];
+      const raw = row[k] ?? '';
+      let val;
+      if (col?.type === 'link' && raw) {
+        val = `<a href="${esc(raw)}" target="_blank">${esc(raw)}</a>`;
+      } else if (col?.type === 'date') {
+        val = fmtDate(raw);
+      } else {
+        val = esc(String(raw));
+      }
+      return `<div class="field-row">
+        <span class="field-key">${esc(col?.label || k)}</span>
+        <span class="field-val">${val}</span>
+      </div>`;
+    }).join('');
+
+  document.getElementById('modalBg').classList.add('show');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modalBg') || e.currentTarget?.classList?.contains('modal-close')) {
+    document.getElementById('modalBg').classList.remove('show');
+  }
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal({}); });
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function renderEmpty(msg) {
+  const cols = currentTab === 'candidates' ? COLS_CANDIDATES : COLS_CLIENTS;
+  document.getElementById('tbody').innerHTML =
+    `<tr><td colspan="${cols.length + 1}" class="center">${msg}</td></tr>`;
+  document.getElementById('pag').style.display = 'none';
+}
+
+function renderLoading() {
+  const cols = currentTab === 'candidates' ? COLS_CANDIDATES : COLS_CLIENTS;
+  document.getElementById('tbody').innerHTML =
+    `<tr><td colspan="${cols.length + 1}" class="center"><span class="spinner"></span>Cargando…</td></tr>`;
+}
+
+function updateStats(shown, period, total, periodName) {
+  document.getElementById('s-shown').textContent  = shown;
+  document.getElementById('s-period').textContent = period;
+  document.getElementById('s-total').textContent  = total;
+  const labels = { today: 'Hoy', week: 'Esta semana', all: 'Total', '–': '–' };
+  document.getElementById('s-period-lbl').textContent = labels[periodName] || periodName;
+}
+
+function fmtDate(d) {
+  if (!d) return '–';
+  try {
+    return new Date(d).toLocaleDateString('es-AR', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  } catch { return String(d); }
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderHeaders();
+</script>
+</body>
+</html>

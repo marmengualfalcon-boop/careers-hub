@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Role Brief · careers hub ⚡</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%232563eb'/><text x='50%' y='54%' font-size='20' text-anchor='middle' dominant-baseline='middle'>⚡</text></svg>">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --border: #2a2d3a;
+    --border-focus: #3b82f6;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --accent: #3b82f6;
+    --accent-dim: rgba(59,130,246,.12);
+    --danger: #ef4444;
+    --green: #10b981;
+    --radius: 10px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    padding: 40px 16px 80px;
+    line-height: 1.6;
+  }
+
+  .wrap { max-width: 680px; margin: 0 auto; }
+
+  /* Header */
+  .header { margin-bottom: 44px; }
+  .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+  .logo-icon {
+    width: 36px; height: 36px; background: var(--accent);
+    border-radius: 8px; display: grid; place-items: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .logo-name { font-size: 15px; font-weight: 600; color: var(--muted); letter-spacing: .5px; }
+  .header h1 { font-size: 26px; font-weight: 700; letter-spacing: -.3px; margin-bottom: 8px; }
+  .header p { color: var(--muted); font-size: 15px; }
+  .client-badge {
+    display: none; align-items: center; gap: 6px;
+    background: var(--accent-dim); border: 1px solid rgba(59,130,246,.3);
+    color: #93c5fd; border-radius: 20px; padding: 4px 12px;
+    font-size: 13px; font-weight: 500; margin-top: 12px;
+  }
+
+  /* Section */
+  .section { margin-bottom: 28px; }
+  .section-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Required row */
+  .fields-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media(max-width:520px) { .fields-row { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .field label span { color: var(--danger); margin-left: 2px; }
+
+  input[type=text], input[type=email], input[type=tel], textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius);
+    padding: 11px 14px;
+    font-size: 14px;
+    font-family: var(--font);
+    width: 100%;
+    transition: border-color .15s;
+    outline: none;
+    resize: none;
+  }
+  input[type=text]:focus, input[type=email]:focus, input[type=tel]:focus, textarea:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+  }
+  input::placeholder, textarea::placeholder { color: #3d4255; }
+
+  /* Textarea block */
+  .block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color .15s;
+  }
+  .block:focus-within { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(59,130,246,.1); }
+  .block-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .block-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .block-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .block-hint { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .block textarea {
+    border: none; border-radius: 0; background: transparent;
+    padding: 14px 16px; font-size: 14px; line-height: 1.7;
+    min-height: 160px;
+    box-shadow: none !important;
+  }
+
+  /* Links block */
+  .links-list { padding: 10px 16px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .link-row { display: flex; gap: 8px; align-items: center; }
+  .link-row input { background: rgba(255,255,255,.04); border: 1px solid var(--border); flex: 1; }
+  .btn-remove {
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    font-size: 18px; line-height: 1; padding: 4px; border-radius: 4px;
+    transition: color .15s;
+  }
+  .btn-remove:hover { color: var(--danger); }
+  .btn-add-link {
+    background: none; border: 1px dashed var(--border); color: var(--muted);
+    border-radius: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer;
+    width: 100%; text-align: left; transition: all .15s; font-family: var(--font);
+    margin-top: 4px;
+  }
+  .btn-add-link:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+  /* Drop zone */
+  .dropzone {
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    position: relative;
+  }
+  .dropzone:hover, .dropzone.over { border-color: var(--accent); background: var(--accent-dim); }
+  .dropzone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .dropzone-icon { font-size: 28px; margin-bottom: 10px; }
+  .dropzone-text { font-size: 14px; color: var(--muted); }
+  .dropzone-text strong { color: var(--text); }
+  .dropzone-sub { font-size: 12px; color: #3d4255; margin-top: 4px; }
+  .file-attached {
+    display: none; align-items: center; gap: 10px;
+    background: var(--surface); border: 1px solid var(--green);
+    border-radius: 8px; padding: 10px 14px; margin-top: 10px;
+  }
+  .file-attached.show { display: flex; }
+  .file-name { font-size: 13px; color: var(--text); font-weight: 500; flex: 1; word-break: break-all; }
+  .file-size { font-size: 12px; color: var(--muted); flex-shrink: 0; }
+  .btn-clear-file { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 2px 4px; }
+  .btn-clear-file:hover { color: var(--danger); }
+
+  /* Toast */
+  .toast {
+    display: none; background: #0d2d1a; border: 1px solid #166534;
+    border-radius: var(--radius); padding: 14px 16px; margin-bottom: 24px;
+    font-size: 13px; color: #86efac; gap: 10px; align-items: flex-start;
+  }
+  .toast.show { display: flex; }
+  .toast a { color: #4ade80; word-break: break-all; }
+
+  /* Submit */
+  .submit-row { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; }
+  .btn-submit {
+    background: var(--accent); color: #fff; border: none;
+    border-radius: var(--radius); padding: 14px 28px;
+    font-size: 15px; font-weight: 600; cursor: pointer; width: 100%;
+    transition: background .15s, opacity .15s; font-family: var(--font);
+  }
+  .btn-submit:hover { background: #2563eb; }
+  .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+  .submit-note { font-size: 12px; color: var(--muted); text-align: center; }
+
+  .error-msg { color: var(--danger); font-size: 13px; margin-top: 6px; display: none; }
+  .error-msg.show { display: block; }
+
+  /* Success */
+  .success-screen { display: none; text-align: center; padding: 60px 24px; }
+  .success-screen.show { display: block; }
+  .success-icon { font-size: 52px; margin-bottom: 20px; }
+  .success-screen h2 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+  .success-screen p { color: var(--muted); font-size: 15px; }
+  .success-link-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px; margin-top: 24px;
+    display: flex; gap: 10px; align-items: center;
+  }
+  .success-link-box span { font-size: 12px; color: var(--muted); flex: 1; word-break: break-all; text-align: left; }
+  .success-divider {
+    margin: 40px 0 20px; color: var(--text); font-size: 22px; font-weight: 700; letter-spacing: -.3px;
+    text-align: center;
+  }
+  .another-role-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px 24px; text-align: left;
+  }
+  .another-role-box p { font-size: 14px; color: var(--muted); margin-bottom: 14px; line-height: 1.5; }
+  .another-role-box strong { color: var(--text); }
+  .btn-another {
+    width: 100%; background: var(--surface);
+    border: 1px solid var(--border-focus); color: var(--accent);
+    border-radius: 8px; padding: 11px 20px; font-size: 14px;
+    font-weight: 600; cursor: pointer; transition: background .15s;
+  }
+  .btn-another:hover { background: var(--accent-dim); }
+  .btn-copy {
+    background: var(--accent-dim); border: 1px solid rgba(59,130,246,.3);
+    color: #93c5fd; border-radius: 6px; padding: 6px 12px;
+    font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
+    font-family: var(--font); transition: background .15s;
+  }
+  .btn-copy:hover { background: rgba(59,130,246,.2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <span class="logo-name">careers hub</span>
+    </div>
+    <h1>Tell us about the role</h1>
+    <p>Fill in what you know — no need to be exhaustive. We'll follow up if we need more.</p>
+    <div id="clientBadge" class="client-badge"></div>
+  </div>
+
+  <div id="editToast" class="toast">
+    <span>🔗</span>
+    <div>
+      <strong>Your progress is saved.</strong> Bookmark this link to come back and edit:<br>
+      <a id="editLink" href="#"></a>
+    </div>
+  </div>
+
+  <form id="mainForm" autocomplete="off">
+
+    <div class="section">
+      <div class="section-label">Your info</div>
+      <div class="fields-row">
+        <div class="field">
+          <label>Full name <span>*</span></label>
+          <input type="text" id="full_name" placeholder="Ada Lovelace" required>
+        </div>
+        <div class="field">
+          <label>Company <span>*</span></label>
+          <input type="text" id="company" placeholder="Acme Inc." required>
+        </div>
+        <div class="field">
+          <label>Email <span>*</span></label>
+          <input type="email" id="email" placeholder="ada@acme.com" required>
+        </div>
+        <div class="field">
+          <label>WhatsApp <span>*</span></label>
+          <input type="tel" id="whatsapp" placeholder="+54 9 11 1234 5678" required>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">The role</div>
+      <div class="block">
+        <div class="block-header">
+          <div class="block-icon">📋</div>
+          <div>
+            <div class="block-title">Describe the role in your own words</div>
+            <div class="block-hint">Title, seniority, tech stack, team context, day-to-day, must-haves vs nice-to-haves, compensation, work mode, timezone, hiring timeline — whatever you have.</div>
+          </div>
+        </div>
+        <textarea id="role_description" placeholder="e.g. We're looking for a senior backend engineer to join our infra team. They'll own our data pipeline built on Python + Airflow. Must have 5+ years experience, ideally with Kafka. Fully remote, UTC-3 to UTC+1. $120–140k. Starting ASAP." rows="8"></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Reference links</div>
+      <div class="block">
+        <div class="block-header">
+          <div class="block-icon">🔗</div>
+          <div>
+            <div class="block-title">LinkedIn profiles & existing JDs</div>
+            <div class="block-hint">Link to people whose profile matches what you're looking for, or to job descriptions from similar roles at other companies.</div>
+          </div>
+        </div>
+        <div class="links-list" id="linksList">
+          <div class="link-row">
+            <input type="text" placeholder="https://linkedin.com/in/... or job posting URL">
+            <button type="button" class="btn-remove" onclick="removeLink(this)">×</button>
+          </div>
+        </div>
+        <div style="padding:0 16px 14px;">
+          <button type="button" class="btn-add-link" onclick="addLink()">+ Add another link</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Got a doc? <span style="color:var(--muted);font-size:10px;text-transform:none;letter-spacing:0;margin-left:4px;">optional</span></div>
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt,.md" onchange="handleFile(this.files[0])">
+        <div class="dropzone-icon">📄</div>
+        <div class="dropzone-text"><strong>Drop a file here</strong> or click to browse</div>
+        <div class="dropzone-sub">JD, brief, requirements doc · PDF, Word, TXT · Max 5 MB</div>
+      </div>
+      <div class="file-attached" id="fileAttached">
+        <span>📎</span>
+        <span class="file-name" id="fileName"></span>
+        <span class="file-size" id="fileSize"></span>
+        <button type="button" class="btn-clear-file" onclick="clearFile()">×</button>
+      </div>
+    </div>
+
+    <div id="errorMsg" class="error-msg"></div>
+
+    <div class="submit-row">
+      <button type="submit" class="btn-submit" id="submitBtn">Send brief →</button>
+      <p class="submit-note">We'll follow up at the email you provided.</p>
+    </div>
+
+  </form>
+
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">✅</div>
+    <h2>Brief received — thanks!</h2>
+    <p>We'll review everything and get back to you shortly.</p>
+    <div class="success-link-box">
+      <span id="successEditLink"></span>
+      <button class="btn-copy" onclick="copyLink()">Copy edit link</button>
+    </div>
+    <p style="margin-top:10px;font-size:12px;color:var(--muted);">Save this link to update your brief anytime.</p>
+
+    <div class="success-divider">➕ Got another role to fill?</div>
+
+    <div class="another-role-box">
+      <p>Your contact details will be carried over automatically — just describe the new role.</p>
+      <button class="btn-another" onclick="submitAnotherRole()">Submit another role brief →</button>
+    </div>
+  </div>
+
+</div>
+<script>
+const API = '/api/intake-submit';
+let savedEditLink = '';
+let attachedFile = null;
+let existingToken = null;
+
+(function init() {
+  const p = new URLSearchParams(location.search);
+  const client  = p.get('client');
+  const token   = p.get('token');
+  const prefill = p.get('prefill');
+
+  if (client) {
+    const badge = document.getElementById('clientBadge');
+    badge.textContent = client;
+    badge.style.display = 'inline-flex';
+    if (!token && !prefill) document.getElementById('company').value = client;
+  }
+
+  if (token) {
+    existingToken = token;
+    prefillFromToken(token);
+  }
+
+  // "Submit another role" flow — load identity fields only (no token = fresh submission)
+  if (prefill && !token) {
+    try {
+      const cached = localStorage.getItem('intake_' + prefill);
+      if (cached) {
+        const d = JSON.parse(cached);
+        if (d.full_name) document.getElementById('full_name').value = d.full_name;
+        if (d.company)   document.getElementById('company').value   = d.company;
+        if (d.email)     document.getElementById('email').value     = d.email;
+        if (d.whatsapp)  document.getElementById('whatsapp').value  = d.whatsapp;
+        // Show badge
+        if (d.company) {
+          const badge = document.getElementById('clientBadge');
+          badge.textContent = d.company;
+          badge.style.display = 'inline-flex';
+        }
+      }
+    } catch(_) {}
+  }
+
+  const dz = document.getElementById('dropzone');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('over');
+    const f = e.dataTransfer.files[0];
+    if (f) handleFile(f);
+  });
+})();
+
+async function prefillFromToken(token) {
+  // Try localStorage first (works same-browser, survives server storage issues)
+  let d = null;
+  try {
+    const cached = localStorage.getItem('intake_' + token);
+    if (cached) d = JSON.parse(cached);
+  } catch(_) {}
+
+  // Fall back to server fetch
+  if (!d) {
+    try {
+      const r = await fetch(`${API}?action=get&token=${token}`);
+      const j = await r.json();
+      if (j.success && j.data) d = j.data;
+    } catch(_) {}
+  }
+
+  if (!d) return;
+  if (d.full_name)  document.getElementById('full_name').value  = d.full_name;
+  if (d.company)    document.getElementById('company').value    = d.company;
+  if (d.email)      document.getElementById('email').value      = d.email;
+  if (d.whatsapp)   document.getElementById('whatsapp').value   = d.whatsapp;
+  if (d.role_description) document.getElementById('role_description').value = d.role_description;
+  if (d.links && d.links.length) {
+    const list = document.getElementById('linksList');
+    list.innerHTML = '';
+    d.links.forEach(url => list.appendChild(makeLinkRow(url)));
+  }
+  showEditToast(location.href);
+}
+
+function makeLinkRow(val) {
+  const div = document.createElement('div');
+  div.className = 'link-row';
+  div.innerHTML = `<input type="text" placeholder="https://linkedin.com/in/... or job posting URL" value="${val||''}"><button type="button" class="btn-remove" onclick="removeLink(this)">×</button>`;
+  return div;
+}
+
+function addLink() { document.getElementById('linksList').appendChild(makeLinkRow()); }
+function removeLink(btn) {
+  const rows = document.querySelectorAll('#linksList .link-row');
+  if (rows.length === 1) { btn.closest('.link-row').querySelector('input').value = ''; return; }
+  btn.closest('.link-row').remove();
+}
+
+function handleFile(file) {
+  if (!file) return;
+  if (file.size > 5*1024*1024) { showError('File is too large. Max 5 MB.'); return; }
+  attachedFile = file;
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileSize').textContent = formatBytes(file.size);
+  document.getElementById('fileAttached').classList.add('show');
+  document.getElementById('dropzone').style.display = 'none';
+}
+function clearFile() {
+  attachedFile = null;
+  document.getElementById('fileInput').value = '';
+  document.getElementById('fileAttached').classList.remove('show');
+  document.getElementById('dropzone').style.display = '';
+}
+function formatBytes(b) {
+  if (b < 1024) return b+' B';
+  if (b < 1048576) return (b/1024).toFixed(1)+' KB';
+  return (b/1048576).toFixed(1)+' MB';
+}
+function toBase64(file) {
+  return new Promise((res,rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+document.getElementById('mainForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  clearError();
+
+  // Explicit email validation
+  const emailVal = document.getElementById('email').value.trim();
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (emailVal && !emailRe.test(emailVal)) {
+    showError('Please enter a valid email address (e.g. name@company.com).');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+
+  const links = [...document.querySelectorAll('#linksList .link-row input')]
+    .map(i => i.value.trim()).filter(Boolean);
+
+  let fileData = null;
+  if (attachedFile) { try { fileData = await toBase64(attachedFile); } catch(_) {} }
+
+  const payload = {
+    token: existingToken || undefined,
+    full_name: document.getElementById('full_name').value.trim(),
+    company:   document.getElementById('company').value.trim(),
+    email:     document.getElementById('email').value.trim(),
+    whatsapp:  document.getElementById('whatsapp').value.trim(),
+    role_description: document.getElementById('role_description').value.trim(),
+    links,
+    file: fileData ? { name: attachedFile.name, size: attachedFile.size, data: fileData } : null,
+  };
+
+  try {
+    const r = await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const j = await r.json();
+    if (!j.success) throw new Error(j.error || 'Submission failed');
+    existingToken = j.token;
+    savedEditLink = j.editLink;
+    // Cache locally so edit link prefill works even if server storage is unavailable
+    try { localStorage.setItem('intake_' + j.token, JSON.stringify(payload)); } catch(_) {}
+    const url = new URL(location.href);
+    url.searchParams.set('token', j.token);
+    history.replaceState({}, '', url.toString());
+    showSuccess(j.editLink);
+  } catch(err) {
+    showError(err.message || 'Something went wrong. Please try again.');
+    btn.disabled = false; btn.textContent = 'Send brief →';
+  }
+});
+
+// Stores client identity so "another role" can pre-fill without re-typing
+let clientSnapshot = null;
+
+function showSuccess(editLink) {
+  document.getElementById('mainForm').style.display = 'none';
+  document.getElementById('successScreen').classList.add('show');
+  document.getElementById('successEditLink').textContent = editLink;
+  savedEditLink = editLink;
+  // Snapshot the identity fields so we can carry them to the next brief
+  clientSnapshot = {
+    full_name: document.getElementById('full_name').value.trim(),
+    company:   document.getElementById('company').value.trim(),
+    email:     document.getElementById('email').value.trim(),
+    whatsapp:  document.getElementById('whatsapp').value.trim(),
+  };
+  try { localStorage.setItem('intake_client', JSON.stringify(clientSnapshot)); } catch(_) {}
+}
+
+function submitAnotherRole() {
+  // Build a seed token just for pre-fill (new submission = new token on POST)
+  const seed = 'prefill_' + Date.now();
+  const data = clientSnapshot || (() => {
+    try { return JSON.parse(localStorage.getItem('intake_client') || 'null'); } catch(_) { return null; }
+  })();
+  if (data) {
+    try { localStorage.setItem('intake_' + seed, JSON.stringify(data)); } catch(_) {}
+  }
+  const company = data?.company ? '&client=' + encodeURIComponent(data.company) : '';
+  window.location.href = `/intake.html?prefill=${seed}${company}`;
+}
+function showEditToast(link) {
+  const t = document.getElementById('editToast');
+  t.classList.add('show');
+  const a = document.getElementById('editLink');
+  a.href = link; a.textContent = link;
+  savedEditLink = link;
+}
+function copyLink() {
+  if (!savedEditLink) return;
+  navigator.clipboard.writeText(savedEditLink).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy edit link', 2000); }
+  });
+}
+function showError(msg) { const el = document.getElementById('errorMsg'); el.textContent = msg; el.classList.add('show'); }
+function clearError() { document.getElementById('errorMsg').classList.remove('show'); }
+</script>
+</body>
+</html>

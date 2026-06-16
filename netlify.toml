@@ -1,0 +1,26 @@
+# ── Netlify configuration ──────────────────────────────────────────────────────
+
+[build]
+  publish   = "."         # index.html is at the root
+  command   = ""          # no build step needed (plain HTML)
+
+[build.environment]
+  NODE_VERSION = "18"     # ensures native fetch is available in functions
+
+[functions]
+  directory     = "netlify/functions"
+  node_bundler  = "esbuild"    # fast bundler, handles CommonJS well
+
+# Cleaner URL alias for the function endpoint
+[[redirects]]
+  from   = "/api/submit"
+  to     = "/.netlify/functions/submit"
+  status = 200
+
+# Security headers for the HTML page
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options        = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy        = "strict-origin-when-cross-origin"
